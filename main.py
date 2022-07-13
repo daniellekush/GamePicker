@@ -30,7 +30,12 @@ async def addgame(ctx, args):
 @bot.command()
 # -listgames | Allows anyone to list the games and their weights
 async def listgames(ctx):
-  file = open("games.txt", 'r')
+  try:
+    file = open("games.txt", 'r')
+  except:
+    file = open("games.txt", 'w')
+    file.close()
+    file = open("games.txt", 'r')
   content = file.readlines()
   list = []
 
@@ -123,11 +128,16 @@ async def on_reaction_add(reaction, user):
 # -pick | If the person has permission to kick members, they can randomly pick a game and this decision is made using weights with bigger weight meaning more likely
 async def pick(ctx):
   if ctx.message.author.guild_permissions.kick_members:
-    file = open('games.txt', 'r').readlines()
+    try:
+      file = open("games.txt", 'r')
+    except:
+      file = open("games.txt", 'w')
+      file.close()
+      file = open("games.txt", 'r')
     list = []
     choices = []
   
-    for i in file:
+    for i in file.readlines():
       for j,x in enumerate(i.split(',')):
         if j % 2 == 0:
           choices.append(x)
