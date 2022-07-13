@@ -120,6 +120,6 @@ async def pick(ctx):
         list.append(int(x.replace('\n', '')))
         
     choice = random.choices(choices, weights=tuple(list), k=1)
-    await ctx.channel.send("I picked ", choice[0])
+    await ctx.channel.send(choice[0])
 
 bot.run(TOKEN)
