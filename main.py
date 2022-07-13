@@ -74,11 +74,26 @@ async def vote(ctx):
 # Reaction event handler to count votes
 async def on_reaction_add(reaction, user):
   emoji = reaction.emoji
+  try:
+    userFile = open("users.txt", 'r')
+  except:
+    userFile = open("users.txt", 'w')
+    userFile.close()
+    userFile = open("users.txt", 'r')
+  dupCheck = user.name + emoji + '\n'
 
   if user.bot:
     return
   if "Vote for the games you like watching the most to make them appear more often!\n" not in reaction.message.content:
     return
+  if dupCheck in userFile.readlines():
+    await reaction.message.channel.send("You can't vote for the same game twice, that's cheating!")
+    userFile.close()
+    return
+
+  userFile = open("users.txt", 'a')
+  userFile.write(dupCheck)
+  userFile.close()
 
   for i,j in enumerate(emojis):
     file = open('games.txt', 'r')
