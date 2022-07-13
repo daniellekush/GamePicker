@@ -15,10 +15,11 @@ emojis = ["\N{THUMBS UP SIGN}", "\N{SLIGHTLY SMILING FACE}", "\N{SKULL}", "\N{WI
 
 @bot.command()
 # -addgame | If the person has permission to kick members, they can add new games to the list
-async def addgame(ctx, *args):
+async def addgame(ctx, args):
   if not args:
     await ctx.channel.send("You must include an argument!")
     return
+    
   if ctx.message.author.guild_permissions.kick_members:
     file = open("games.txt", 'a')
     arg = args.replace('"', '')
@@ -82,8 +83,10 @@ async def on_reaction_add(reaction, user):
   for i,j in enumerate(emojis):
     file = open('games.txt', 'r')
     copy = file.readlines()
+    
     if i >= len(copy):
       break
+      
     if emoji == j:
       num = int(copy[i].split(',')[1].replace('\n', ''))
       num += INCREMENT_VALUE
@@ -92,6 +95,7 @@ async def on_reaction_add(reaction, user):
       copy[i] = text[0] + ',' + text[1]
       file.close()
       file = open('games.txt', 'w')
+      
       for x in copy:
         file.write(x)
       file.close()
@@ -114,7 +118,8 @@ async def pick(ctx):
           choices.append(x)
           continue
         list.append(int(x.replace('\n', '')))
+        
     choice = random.choices(choices, weights=tuple(list), k=1)
-    await ctx.channel.send("Azarren go stream ", choice[0])
+    await ctx.channel.send("I picked ", choice[0])
 
 bot.run(TOKEN)
