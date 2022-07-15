@@ -19,8 +19,16 @@ async def addgame(ctx, args):
   if not args:
     await ctx.channel.send("You must include an argument!")
     return
-    
   if ctx.message.author.guild_permissions.kick_members:
+    file = open("games.txt", "r")
+    for item in file.readlines():
+      if args in item:
+        await ctx.channel.send(args + " is already registered! See it in `-listgames`")
+        return
+    if args == args.lower():
+      await ctx.channel.send("Don't mean to be annoying but please capitalise that first letter of the game in order to add it!")
+      return
+    file.close()
     file = open("games.txt", 'a')
     arg = args.replace('"', '')
     file.write(arg + "," + str(START_VALUE) + "\n")
