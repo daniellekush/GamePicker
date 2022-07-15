@@ -79,6 +79,10 @@ async def vote(ctx):
 # Reaction event handler to count votes
 async def on_reaction_add(reaction, user):
   emoji = reaction.emoji
+  
+  if emoji not in emojis:
+    return
+  
   try:
     userFile = open("users.txt", 'r')
   except:
