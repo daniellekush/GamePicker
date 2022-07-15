@@ -11,13 +11,12 @@ START_VALUE = 1
 # The value in which weights increase when voted for
 INCREMENT_VALUE = 1
 # Add more emojis to support more than 8 games
-emojis = ["\N{THUMBS UP SIGN}", "\N{SLIGHTLY SMILING FACE}", "\N{SKULL}", "\N{WINKING FACE}", "\N{GHOST}", "\N{ALIEN MONSTER}", "\N{FACE WITH TEARS OF JOY}", "\N{CAT}"]
 
 @bot.command()
 # -addgame | If the person has permission to kick members, they can add new games to the list
-async def addgame(ctx, args):
-  if not args:
-    await ctx.channel.send("You must include an argument!")
+async def addgame(ctx, args=None, emote=None):
+  if not args or not emote:
+    await ctx.channel.send("You must include 2 arguments! The correct way to use this command is `-addgame [game] [emoji]`")
     return
   if ctx.message.author.guild_permissions.kick_members:
     file = open("games.txt", "r")
@@ -31,7 +30,7 @@ async def addgame(ctx, args):
     file.close()
     file = open("games.txt", 'a')
     arg = args.replace('"', '')
-    file.write(arg + "," + str(START_VALUE) + "\n")
+    file.write(arg + "," + str(START_VALUE) + "," + emote +"\n")
     file.close()
     await ctx.channel.send("Adding '" + arg + "'")
 
@@ -62,55 +61,62 @@ async def listgames(ctx):
 
 @bot.command()
 # -vote | Allows anyone to vote for a game to increase its weighting
-#TODO: People can vote for the same game several times if they keep running -vote which is a clear exploit
 async def vote(ctx):
   text = "Vote for the games you like watching the most to make them appear more often!\n"
-  file = open("games.txt", "r").readlines()
+  file = open("games.txt", "r")
+
+  global emojis
+  global votes
+  global games
+  emojis = []
+  votes = []
   games = []
 
-  for i in file:
+  for i in file.readlines():
     games.append(i.split(',')[0])
-
+    votes.append(i.split(',')[1])
+    emojis.append(i.split(',')[2].replace('\n', ''))
+    
   counter = 0
   for game in games:
-    text += emojis[counter] + " " + game + '\n'
+    text += game + " " + emojis[counter] + '\n'
     counter += 1
-    
+  
   message = await ctx.channel.send(text)
   counter2 = 0
 
   while counter2 < counter:
-    await message.add_reaction(emojis[counter2])
+    await message.add_reaction(emojis[counter2].replace('\n', ''))
     counter2 += 1
+  file.close()
 
 @bot.event
 # Reaction event handler to count votes
 async def on_reaction_add(reaction, user):
   emoji = reaction.emoji
-  
+
   if emoji not in emojis:
     return
-  
-  try:
-    userFile = open("users.txt", 'r')
-  except:
-    userFile = open("users.txt", 'w')
-    userFile.close()
-    userFile = open("users.txt", 'r')
-  dupCheck = user.name + emoji + '\n'
-
   if user.bot:
     return
   if "Vote for the games you like watching the most to make them appear more often!\n" not in reaction.message.content:
     return
-  if dupCheck in userFile.readlines():
+  
+  try:
+    file = open("users.txt", 'r')
+  except:
+    file = open("users.txt", 'w')
+    file.close()
+    file = open("users.txt", 'r')
+  dupCheck = user.name + emoji + '\n'
+
+  if dupCheck in file.readlines():
     await reaction.message.channel.send("You can't vote for the same game twice, that's cheating!")
-    userFile.close()
     return
 
-  userFile = open("users.txt", 'a')
-  userFile.write(dupCheck)
-  userFile.close()
+  file = open("users.txt", 'a')
+  file.write(dupCheck)
+  file.close()
 
   for i,j in enumerate(emojis):
     file = open('games.txt', 'r')
@@ -120,11 +126,9 @@ async def on_reaction_add(reaction, user):
       break
       
     if emoji == j:
-      num = int(copy[i].split(',')[1].replace('\n', ''))
+      num = int(votes[i])
       num += INCREMENT_VALUE
-      text = copy[i].split(',')
-      text[1] = str(num) + '\n'
-      copy[i] = text[0] + ',' + text[1]
+      copy[i] = games[i] + ',' + str(num) + ',' + emojis[i] + '\n'
       file.close()
       file = open('games.txt', 'w')
       
@@ -132,10 +136,9 @@ async def on_reaction_add(reaction, user):
         file.write(x)
       file.close()
       break
-  
+
   await reaction.message.channel.send(user.name + " has added " + emoji)
   
-
 @bot.command()
 # -pick | If the person has permission to kick members, they can randomly pick a game and this decision is made using weights with bigger weight meaning more likely
 async def pick(ctx):
