@@ -146,18 +146,19 @@ async def pick(ctx):
     try:
       file = open("games.txt", 'r')
     except:
-      file = open("games.txt", 'w')
-      file.close()
-      file = open("games.txt", 'r')
+      await ctx.channel.send("You can't pick from an empty list, please go add some games using `-addgame`")
+      return
     list = []
     choices = []
   
     for i in file.readlines():
       for j,x in enumerate(i.split(',')):
+        if j % 3 == 0:
+          continue
         if j % 2 == 0:
           choices.append(x)
           continue
-        list.append(int(x.replace('\n', '')))
+        list.append(int(x))
         
     choice = random.choices(choices, weights=tuple(list), k=1)
     await ctx.channel.send(choice[0])
