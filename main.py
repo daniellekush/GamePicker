@@ -163,4 +163,38 @@ async def pick(ctx):
     choice = random.choices(choices, weights=tuple(list), k=1)
     await ctx.channel.send(choice[0])
 
+
+@bot.command()
+# -removegame | For when you no longer want a game to be a part of the list
+async def removegame(ctx, args=None):
+  if not args:
+    await ctx.channel.send("You must provide the game's name")
+
+  if ctx.message.author.guild_permissions.kick_members:
+    try:
+      file = open("games.txt", 'r')
+    except:
+      await ctx.channel.send("You can't delete from an empty list, please go add some games using `-addgame`")
+      return
+
+    emojis = []
+    votes = []
+    games = []
+
+  for i in file.readlines():
+    games.append(i.split(',')[0])
+    votes.append(i.split(',')[1])
+    emojis.append(i.split(',')[2].replace('\n', ''))
+
+  file.close()
+  file = open("games.txt", 'w')
+  counter = 0
+
+  while counter < len(games):
+    if games[counter] != args:
+      file.write(games[counter] + "," + votes[counter] + "," + emojis[counter] + "\n")
+    counter += 1
+  file.close()
+  await ctx.channel.send("Removed " + args)
+
 bot.run(TOKEN)

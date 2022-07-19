@@ -14,7 +14,12 @@ You can create your list using:
 
 This adds a new member to the list with the default initial starting weight. This initial starting weight can be changed in the code. You can keep adding more games but the max supported games is 8 at a time, you can add more by adding more emojis to the list (better support for this may come in the future). If you want to add games with more than 1 argument/has space in it then you have to have quotations around the name for example -addgame "Project Zomboid". Without the quotations, you'll be adding "Project" and "Zomboid" won't be read.
 
-Note that only users with the "kick members" permission may use this command!
+Oh no, I added Project Zomboid to my game list when I actually meant to add something else. Great, we can remove a game from the list using:
+> -removegame [name]
+
+In this particular example, we will be doing -remove "Project Zomboid"
+
+Note that only users with the "kick members" permission may use these commands!
 
 ### Use the bot
 You can check out your new list using:
