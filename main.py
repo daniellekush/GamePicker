@@ -33,6 +33,8 @@ async def addgame(ctx, args=None, emote=None):
     file.write(arg + "," + str(START_VALUE) + "," + emote +"\n")
     file.close()
     await ctx.channel.send("Adding '" + arg + "'")
+  else:
+    await ctx.channel.send("You are not powerful enough for this command.")
 
 @bot.command()
 # -listgames | Allows anyone to list the games and their weights
@@ -162,6 +164,8 @@ async def pick(ctx):
         
     choice = random.choices(choices, weights=tuple(list), k=1)
     await ctx.channel.send(choice[0])
+  else:
+    await ctx.channel.send("You are not powerful enough for this command.")
 
 
 @bot.command()
@@ -181,20 +185,22 @@ async def removegame(ctx, args=None):
     votes = []
     games = []
 
-  for i in file.readlines():
-    games.append(i.split(',')[0])
-    votes.append(i.split(',')[1])
-    emojis.append(i.split(',')[2].replace('\n', ''))
+    for i in file.readlines():
+      games.append(i.split(',')[0])
+      votes.append(i.split(',')[1])
+      emojis.append(i.split(',')[2].replace('\n', ''))
+  
+    file.close()
+    file = open("games.txt", 'w')
+    counter = 0
+  
+    while counter < len(games):
+      if games[counter] != args:
+        file.write(games[counter] + "," + votes[counter] + "," + emojis[counter] + "\n")
+      counter += 1
+    file.close()
+    await ctx.channel.send("Removed " + args)
 
-  file.close()
-  file = open("games.txt", 'w')
-  counter = 0
-
-  while counter < len(games):
-    if games[counter] != args:
-      file.write(games[counter] + "," + votes[counter] + "," + emojis[counter] + "\n")
-    counter += 1
-  file.close()
-  await ctx.channel.send("Removed " + args)
-
+  else:
+    await ctx.channel.send("You are not powerful enough for this command.")
 bot.run(TOKEN)
